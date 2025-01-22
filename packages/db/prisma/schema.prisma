@@ -10,7 +10,8 @@ datasource db {
 model User {
   id            String     @id @default(uuid())
   email         String     @unique
-  password      String
+  password      String?
+  type          String     @default("Credential")
   name          String
   photo         String?
   rooms         Room[]

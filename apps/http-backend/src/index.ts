@@ -19,22 +19,47 @@ interface RequestUser extends Request{
 app.post("/signup",async (req:RequestUser,res:Response)=>{
     const data = req.body;
     const result = CreateUserSchema.safeParse(data);
+    console.log("signup");
+    console.log(result);
     if(result.success){
         try{
-            result.data.password = await bcrypt.hash(result.data.password,5); 
-            const dbRes = await prismaClient.user.create({
-                data:result.data
-            })
-            res.send({
-                msg:dbRes
-            })
+            const type = data.type;
+            if(type==undefined){
+                if(!result.data.password) return;
+                result.data.password = await bcrypt.hash(result.data.password,5); 
+                const dbRes = await prismaClient.user.create({
+                    data:result.data
+                })
+                res.send({
+                    msg:dbRes
+                })
+            }else{
+                const dbRes = await prismaClient.user.create({
+                    data:{
+                        name:data.name,
+                        email:data.email,
+                        type:data.type,
+                        photo:data.photo
+                    }
+                })
+                const token = jwt.sign({
+                    email:dbRes.email,
+                    id:dbRes.id
+                },JWT_SECRET)
+                //@ts-ignore
+                dbRes.token = token;
+                res.send({
+                    msg:dbRes
+                })
+            }
+
         }catch(e){
-            res.send({
+            res.status(205).send({
                 msg:e
             })
         }
     }else{
-        res.send({
+        res.status(205).send({
             msg:result.error
         })
     }
@@ -46,6 +71,8 @@ interface RequestUserSignin extends Request{
 app.post("/signin",async  (req:RequestUserSignin,res:Response)=>{
     const data = req.body;
     const result = SigninSchema.safeParse(data);
+    console.log("signin");
+    console.log(result);
     if(result.success){
         try{
             const resdb = await prismaClient.user.findUnique({
@@ -54,10 +81,35 @@ app.post("/signin",async  (req:RequestUserSignin,res:Response)=>{
                 }
             })
             if(resdb==null){
-                res.send({
+                res.status(205).send({
                     msg:"User not found"
                 })
-                return ;
+                console.log("return") 
+                return;
+            }
+            if(resdb.type=="provider"){
+                const token = jwt.sign({
+                    email:resdb.email,
+                    id:resdb.id
+                },JWT_SECRET)
+                res.send({
+                    msg:{
+                        token:token,
+                        userId:resdb.id,
+                        name:resdb.name,
+                        email:resdb.email
+                    }
+                })
+                console.log("return") 
+                return;
+            }
+            if(!result.data.password){
+                console.log("return") 
+                return;
+            } 
+            if(!resdb.password){
+                console.log("return") 
+                return;
             }
             const passResult = await bcrypt.compare(result.data.password,resdb.password);
             if(passResult){
@@ -66,20 +118,35 @@ app.post("/signin",async  (req:RequestUserSignin,res:Response)=>{
                     id:resdb.id
                 },JWT_SECRET)
                 res.send({
-                    msg:token
+                    msg:{
+                        token:token,
+                        userId:resdb.id,
+                        name:resdb.name,
+                        email:resdb.email
+                    }
                 })
+                console.log("return");
+                return
             }else{
-                res.send({
+                res.status(205).send({
                     msg:"login failed"
                 })
-                return;
+                console.log("return");
+                return
             }
         }catch(e){
-            res.send({
+            res.status(205).send({
                 msg:e
             })
-            return;
+            console.log("return");
+            return
         }
+    }else{
+        res.status(205).send({
+            msg:"failed"
+        })
+        console.log("return");
+        return;
     }
 })
 interface reqRoom extends Request{
@@ -157,6 +224,6 @@ app.get("/room/:slug",middleware,async (req:reqRoom,res)=>{
     }
 
 })
-app.listen(3005,()=>{
+app.listen(3001,()=>{
     console.log("The server is running on port 3000")
 })
