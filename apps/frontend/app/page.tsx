@@ -1,15 +1,27 @@
 "use client"
+import { tokenAtom } from "@/atoms/token";
 import { Card } from "@/components/icons/Card";
 import { Draw } from "@/components/icons/draw";
+import { Session } from "inspector";
 import {Pencil,Download,Github} from 'lucide-react'
 import { SessionContext, signIn, signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useRecoilState, useSetRecoilState } from "recoil";
+import { Present } from "./api/auth/[...nextauth]/route";
+function UserData({session}){
+  
+  if(session.data?.user){
+      return <div>user authenticated</div>
+    }
+    return <div></div>
+}
 export default function Home(){
   const session = useSession();
   const router = useRouter();
-  if(session.status=="authenticated"){
-    router.push("/rooms")
-  }
+  const setToken = useSetRecoilState(tokenAtom);
+  // if(session.status=="authenticated"){
+  //   router.push("/rooms")
+  // }
   return <div>
     <div className="bg-[#f0f2fa] h-96 flex justify-center ">
         <div className=" h-fit  bg-[#f2f3f7] w-full ">
@@ -23,11 +35,17 @@ export default function Home(){
             <div className="flex text-base mx-1 font-medium	   text-gray-900 md:text-xl	">
               <button onClick={()=>{
                 signIn()
+                setToken(t=>{
+                  Present = "";
+                })
               }} className="px-3 mx-1 hover:text-purple-900 hover:font-bold">Sign in</button>
               <button onClick={()=>{
                 signOut()
+                Present = "";
               }} className="px-3 mx-1 hover:text-purple-900 hover:font-bold">Sign Out</button>
-              <button className="px-3 mx-1 hover:text-purple-900 hover:font-bold">Rooms</button>
+              <button onClick={()=>{
+                router.push("/rooms")
+              }} className="px-3 mx-1 hover:text-purple-900 hover:font-bold">Rooms</button>
               <button className="px-3 mx-1 hover:text-purple-900 hover:font-bold">About Us</button>
             </div>
           </div>
@@ -39,9 +57,11 @@ export default function Home(){
     </div>
     <div>
       <div className="flex justify-around ">
-      <Card title="Real-time Collaboration" body={"Work together with your team in real-time. Share your drawings instantly with a simple link."} />
+        <div className="w-fit sm:flex ">      <Card title="Real-time Collaboration" body={"Work together with your team in real-time. Share your drawings instantly with a simple link."} />
       <Card title="Multiplayer Editing" body={"   Multiple users can edit the same canvas simultaneously. See who's drawing what in real-time."} />
       <Card title="Smart Drawing" body={"        Intelligent shape recognition and drawing assistance helps you create perfect diagrams."} />
+      </div>
+
       </div>
     </div>
     <section className="py-24">
@@ -80,7 +100,7 @@ export default function Home(){
               <a href="#" className="text-muted-foreground hover:text-primary">
                 <Download className="h-5 w-5" />
               </a>
-              {JSON.stringify(session)}
+              <UserData session={session}/>
             </div>
           </div>
         </div>

@@ -2,7 +2,7 @@
 
 import { Draw } from "@/components/icons/draw"
 import { signIn, signOut } from "next-auth/react"
-import { useRouter } from "next/router"
+import { useRouter } from "next/navigation"
 
 export default function Room(){
     const router = useRouter();

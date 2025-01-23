@@ -5,7 +5,10 @@ import {CreateUserSchema} from '@repo/common/types'
 import GitHubProvider from "next-auth/providers/github"
 import { z } from "zod"
 import axios from "axios"
+import { useRecoilValue } from "recoil"
+import { tokenAtom } from "@/atoms/token"
 type UserSchema = z.infer<typeof CreateUserSchema>;
+export let Present:string = "";
 const handler = NextAuth({
   providers:[
     CredentialsProvider({
@@ -17,7 +20,6 @@ const handler = NextAuth({
         },
         //@ts-ignore
         async authorize(credentials:UserSchema,req){
-          console.log(credentials);
           const res =await axios.post(`${process.env.backend_url}signin`,{
             "name":credentials.name,
             "email":credentials.email,
@@ -69,25 +71,23 @@ const handler = NextAuth({
   },
   callbacks: {
     async jwt({ token, user }) {
-      console.log(user);
       if (user) {
         token.id = user.id;
         token.email = user.email;
-        if(user.type){
-          token.type=user.type;
-          token.token = user.token;
-        }
       }
       return token;
     },
     async session({ session, token }) {
-      console.log(token);
       if (token) {
         session.user.id = token.id;
         session.user.email = token.email;
       }
+      if(Present){
+        session.token = Present;
+        return session;
+      }
       if(token.type){
-        session.user.token = token.token;
+        session.token = token.token;
         return session;
       }
       const credentials = token
@@ -101,7 +101,7 @@ const handler = NextAuth({
         const res2 = await axios.post(`${process.env.backend_url}signup`,{
           "name":credentials.name,
           "email":credentials.email,
-          "photo":credentials.image,
+          "photo":credentials.picture,
           "type":"provider"
       
         })
@@ -113,7 +113,7 @@ const handler = NextAuth({
       }else{
         session.token = res.data.msg.token
       }
-      return session;
+      return Present =  session;
     },
   }
 })
