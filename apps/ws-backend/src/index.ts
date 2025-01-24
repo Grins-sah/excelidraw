@@ -12,6 +12,7 @@ const users:user[] = [];
 function checkUser(token:string):string | null{
     try{
         const data = jwt.verify(token,JWT_SECRET);
+        console.log(data);
         if(typeof data === 'object'){
             return data.id;
         }
@@ -22,6 +23,7 @@ function checkUser(token:string):string | null{
 
 }
 wss.on("connection",(ws:WebSocket,request)=>{
+    console.log("request for connection");
     const url = request.url;
     if(!url){
         return ;

@@ -7,6 +7,7 @@ interface middlewareReq extends Request{
     id?: number
 }
 export function middleware (req:middlewareReq,res:Response,next:NextFunction){
+    console.log(req.headers);
     if(!req.headers.token){
         res.send({
             msg:"Token not present"

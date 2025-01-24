@@ -57,7 +57,7 @@ export default function Home(){
     </div>
     <div>
       <div className="flex justify-around ">
-        <div className="w-fit sm:flex ">      <Card title="Real-time Collaboration" body={"Work together with your team in real-time. Share your drawings instantly with a simple link."} />
+        <div className="w-fit sm:flex">      <Card title="Real-time Collaboration" body={"Work together with your team in real-time. Share your drawings instantly with a simple link."} />
       <Card title="Multiplayer Editing" body={"   Multiple users can edit the same canvas simultaneously. See who's drawing what in real-time."} />
       <Card title="Smart Drawing" body={"        Intelligent shape recognition and drawing assistance helps you create perfect diagrams."} />
       </div>
