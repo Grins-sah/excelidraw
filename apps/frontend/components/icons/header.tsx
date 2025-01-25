@@ -21,9 +21,5 @@ export  function NavBar(){
         <button className="px-3 mx-1 hover:text-purple-900 hover:font-bold">About Us</button>
       </div>
     </div>
-    <div className="w-full  flex flex-col items-center mt-10 font-sans">
-      <h1 className="text-3xl  font-bold tracking-tight md:text-4xl text-[hsl(var(--foreground))]">Collaborative Whiteboarding</h1>
-      <span className="text-[#173a87] mt-1 p-1 text-3xl  font-bold tracking-tight">Made Simple</span>
-      </div>
   </div> 
 }

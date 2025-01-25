@@ -15,6 +15,9 @@ type users = z.infer<typeof CreateUserSchema>;
 interface RequestUser extends Request{
     body:users
 }
+interface roomReq extends Request{
+    id?:string
+}
 
 app.post("/signup",async (req:RequestUser,res:Response)=>{
     const data = req.body;
@@ -187,6 +190,34 @@ app.post("/room",middleware,async (req:reqRoom,res)=>{
         })
     }
 })
+app.get("/room",middleware,async (req:roomReq,res:Response):Promise<void>=>{
+    console.log("room");
+    const id = req.id
+    if(!id){
+        res.send({
+            msg:"id Not present"
+        })
+        return;
+    }
+    try{
+        const dbres = await prismaClient.room.findMany({
+            where:{
+                adminId:id
+            },
+            take:500
+        })
+        console.log(dbres);
+        res.send({
+            msg:dbres
+        })
+    }catch(e){
+        res.send({
+            msg:e
+        })
+    }
+
+
+})
 app.get("/chats/:roomId",middleware,async (req,res)=>{
     const roomId =  Number(req.params.roomId);
     try{
@@ -223,6 +254,23 @@ app.get("/room/:slug",middleware,async (req:reqRoom,res)=>{
         msg:e
     }
 
+})
+app.delete("/room/:roomId",middleware,async (req,res)=>{
+    const roomId =  Number(req.params.roomId);
+    try{
+        const resdb  = await prismaClient.chat.deleteMany({
+            where:{
+                roomId:roomId
+            }
+        })
+        res.send({
+            msg:`deleted canvas of roomId ${roomId}`
+        })
+    }catch(e){
+        res.send({
+            msg:"failed delete"
+        })
+    }
 })
 app.listen(3001,()=>{
     console.log("The server is running on port 3000")

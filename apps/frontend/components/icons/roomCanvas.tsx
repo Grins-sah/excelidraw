@@ -1,7 +1,11 @@
 import { Drawinit } from "@/draw";
+import { Game, Tool } from "@/draw/Game";
+import axios from "axios";
+import { getToken } from "next-auth/jwt";
+import { headers } from "next/headers";
 import { useEffect, useRef, useState } from "react";
 export  function RoomCanvas({roomId,socket,token}:{
-    roomId:string,
+    roomId:number,
     socket:WebSocket,
     token:string
 }){
@@ -12,8 +16,30 @@ export  function RoomCanvas({roomId,socket,token}:{
         window.option = option
     },[option])
     useEffect(()=>{
-        Drawinit(canvasRef,socket,parseInt(roomId),token)
+        sessionStorage.getItem("token");
+        Drawinit(canvasRef,socket,parseInt(roomId),localStorage.getItem("token"))
     },[canvasRef]);
+    // const canvasRef = useRef<HTMLCanvasElement>(null);
+    // const [game, setGame] = useState<Game>();
+    // const [option, setOption] = useState<Tool>("circle")
+
+    // useEffect(() => {
+    //     game?.setTool(option);
+    // }, [option, game]);
+
+    // useEffect(() => {
+
+    //     if (canvasRef.current) {
+    //         const g = new Game(canvasRef.current, parseInt(roomId), socket,token);
+    //         setGame(g);
+
+    //         return () => {
+    //             g.destroy();
+    //         }
+    //     }
+
+
+    // }, [socket,token]);
     return<div><canvas  ref={canvasRef} width={document.body.clientWidth} height={document.body.clientHeight-50} className="bg-black">
     </canvas>
     <div className="bg-gray-800 h-[50px] flex justify-center items-center">
@@ -33,11 +59,22 @@ export  function RoomCanvas({roomId,socket,token}:{
 </svg>
         </button>
         <button onClick={()=>{
-            setOption(()=>"line")
+            setOption(()=>"pencil")
         }} className="px-5 border text-white rounded-lg mx-5 h-[25px]">
         <svg height="22" width="30" xmlns="http://www.w3.org/2000/svg">
   <line x1="2" y1="2" x2="30" y2="22" stroke="white" stroke-width="2"  />
 </svg>
+        </button>
+        <button onClick={async ()=>{
+            const res = await axios.delete("http://localhost:3001/room/"+roomId,{
+                headers:{
+                    token:localStorage.getItem("token")
+                }
+            })
+            window.alert(res.data.msg);
+            
+        }} className="px-5 border text-white rounded-lg mx-5 h-[25px]">
+
         </button>
     </div>
     </div>

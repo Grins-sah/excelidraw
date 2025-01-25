@@ -8,10 +8,24 @@ import { SessionContext, signIn, signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { Present } from "./api/auth/[...nextauth]/route";
+import { create } from "@/configs/action";
+import { useEffect } from "react";
 function UserData({session}){
   
   if(session.data?.user){
-      return <div>user authenticated</div>
+    useEffect(()=>{
+      if(session.data.token.token){
+        console.log(session.data.token.token)
+
+        localStorage.setItem("token",session.data.token.token);
+      }
+      else if(session.data.token){
+        console.log(session.data.token)
+
+        localStorage.setItem("token",session.data.token);
+      }
+    },[session]);
+      return <div>user authenticated {JSON.stringify(session)}</div>
     }
     return <div></div>
 }
@@ -35,13 +49,9 @@ export default function Home(){
             <div className="flex text-base mx-1 font-medium	   text-gray-900 md:text-xl	">
               <button onClick={()=>{
                 signIn()
-                setToken(t=>{
-                  Present = "";
-                })
               }} className="px-3 mx-1 hover:text-purple-900 hover:font-bold">Sign in</button>
               <button onClick={()=>{
-                signOut()
-                Present = "";
+                  localStorage.removeItem("token");
               }} className="px-3 mx-1 hover:text-purple-900 hover:font-bold">Sign Out</button>
               <button onClick={()=>{
                 router.push("/rooms")
