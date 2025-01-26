@@ -45,6 +45,8 @@ export async function Drawinit(canvasRef: RefObject<HTMLCanvasElement | null>, s
         cliked = true;
         startX = e.clientX;
         startY = e.clientY;
+        ctx.beginPath();
+        if(window.option==="pencil") ctx.moveTo(startX,startY);
     })
     canvas.addEventListener("mouseup", (e) => {
         cliked = false;
@@ -116,16 +118,9 @@ export async function Drawinit(canvasRef: RefObject<HTMLCanvasElement | null>, s
                 ctx.stroke();
                 ctx.beginPath();
             } else if (selected === "pencil") {
-                ctx.beginPath();
-                ctx.moveTo(startX, startY);
-                const height = e.clientY;
-                const width = e.clientX;
-                console.log(height, width);
-                ctx.lineTo(width, height);
+                ctx.lineTo(e.clientX,e.clientY);
                 ctx.stroke();
                 ctx.strokeStyle = "white"
-                ctx.beginPath();
-
             }
 
             ctx.strokeStyle = "white"
@@ -136,6 +131,40 @@ export async function Drawinit(canvasRef: RefObject<HTMLCanvasElement | null>, s
 
 function claerCanvas(existingShapes: shape[], canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
     ctx.clearRect(0, 0, canvas.width, canvas.height)
+    let n = existingShapes.length;
+    for(let i=0;i<n;i++){
+        let shape:shape = existingShapes[i];
+        if (shape.type == "rect") {
+            ctx.strokeStyle = "white",
+                ctx.strokeRect(shape.startX, shape.startY, shape.width, shape.height);
+        } else if (shape.type === "circle") {
+            const centerX = shape.startX + shape.width / 2.0;
+            const centerY = shape.startY + shape.height / 2;
+            const radius = Math.max(shape.height, shape.width) / 2;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, Math.abs(radius), 0, Math.PI * 2)
+            ctx.stroke();
+            ctx.beginPath();
+        } else{
+            ctx.moveTo(shape.startX, shape.startY);
+            while(shape.type == "pencil" && i<n-1) {
+            shape:shape = existingShapes[i];
+            if(shape.type!=="pencil"){
+                i--;
+                ctx.beginPath();
+                break;
+            }
+            ctx.beginPath();
+            ctx.moveTo(shape.startX, shape.startY);
+            ctx.lineTo(shape.width, shape.height);
+            ctx.stroke();
+            ctx.strokeStyle = "white"
+            i++;
+            }
+        }
+
+    }
+
     existingShapes.forEach((shape: shape) => {
         if (shape.type == "rect") {
             ctx.strokeStyle = "white",
@@ -148,13 +177,12 @@ function claerCanvas(existingShapes: shape[], canvas: HTMLCanvasElement, ctx: Ca
             ctx.arc(centerX, centerY, Math.abs(radius), 0, Math.PI * 2)
             ctx.stroke();
             ctx.beginPath();
-        } else if (shape.type = "pencil") {
+        } else while(shape.type == "pencil") {
             ctx.beginPath();
             ctx.moveTo(shape.startX, shape.startY);
             ctx.lineTo(shape.width, shape.height);
             ctx.stroke();
             ctx.strokeStyle = "white"
-            ctx.beginPath();
         }
     })
 }

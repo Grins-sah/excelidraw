@@ -12,7 +12,7 @@ export default function RoomCard({title,CreatedAt,className,roomId,onClick}:{
             <ul className="flex flex-col justify-start">
 
                 <li > Room Id :- {roomId}</li>
-                <li > Created By {sessionStorage.getItem("user")}</li>
+                <li > Created By {localStorage.getItem("user")}</li>
                 <li > Created At {CreatedAt}</li>
 
             </ul>

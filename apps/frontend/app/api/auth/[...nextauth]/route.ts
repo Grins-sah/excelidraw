@@ -5,10 +5,7 @@ import {CreateUserSchema} from '@repo/common/types'
 import GitHubProvider from "next-auth/providers/github"
 import { z } from "zod"
 import axios from "axios"
-import { useRecoilValue } from "recoil"
-import { tokenAtom } from "@/atoms/token"
 type UserSchema = z.infer<typeof CreateUserSchema>;
-export let Present:string = "";
 const handler = NextAuth({
   providers:[
     CredentialsProvider({
@@ -82,10 +79,7 @@ const handler = NextAuth({
         session.user.id = token.id;
         session.user.email = token.email;
       }
-      if(Present){
-        session.token = Present;
-        return session;
-      }
+
       if(token.type){
         session.token = token.token;
         return session;
@@ -113,7 +107,7 @@ const handler = NextAuth({
       }else{
         session.token = res.data.msg.token
       }
-      return Present =  session;
+      return  session;
     },
   }
 })

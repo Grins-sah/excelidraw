@@ -6,7 +6,7 @@ export function Card({title,body,className,onClick}:{
     className?:string,
     onClick?:()=>void
 }){
-    if(onclick){
+    if(onClick){
         return <div onClick={onClick} className = {`backdrop-blur cursor-pointer
  shadow-lg shadow-cyan-500/50  h-48 w-72 rounded-3xl -translate-y-6 mx-16 ${className}`} >
         <div>

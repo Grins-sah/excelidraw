@@ -23,9 +23,10 @@ function UserData({session}){
         console.log(session.data.token)
 
         localStorage.setItem("token",session.data.token);
+        localStorage.setItem("user",session.data.user.name);
       }
     },[session]);
-      return <div>user authenticated {JSON.stringify(session)}</div>
+      return <div>user authenticated </div>
     }
     return <div></div>
 }
